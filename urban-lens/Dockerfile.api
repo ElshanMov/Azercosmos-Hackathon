@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ ./src/
 COPY .env.example .env
+COPY baku_real_data.geojson .
 
 # Expose port
 EXPOSE 8000

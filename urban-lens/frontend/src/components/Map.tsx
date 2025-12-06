@@ -25,6 +25,7 @@ const BUILDING_COLORS: Record<string, string> = {
   cultural: '#14b8a6',
   museum: '#f97316',
   public_space: '#22c55e',
+  yes: '#6b7280',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -38,6 +39,30 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }>
   active: { bg: '#dcfce7', text: '#166534', label: 'Aktiv' },
   inactive: { bg: '#fef3c7', text: '#92400e', label: 'Qeyri-aktiv' },
   maintenance: { bg: '#fee2e2', text: '#991b1b', label: 'Təmirdə' },
+};
+
+// Basemap layers
+const BASEMAPS = {
+  light: {
+    name: 'Light',
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '© CARTO'
+  },
+  dark: {
+    name: 'Dark',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '© CARTO'
+  },
+  osm: {
+    name: 'OpenStreetMap',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap'
+  },
+  satellite: {
+    name: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri'
+  }
 };
 
 const createInfraPopup = (props: any) => {
@@ -120,7 +145,9 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const infraLayerRef = useRef<L.LayerGroup | null>(null);
   const buildingLayerRef = useRef<L.LayerGroup | null>(null);
+  const basemapLayerRef = useRef<L.TileLayer | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [activeBasemap, setActiveBasemap] = useState<string>('light');
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -134,8 +161,10 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© CARTO',
+    // Initial basemap
+    const initialBasemap = BASEMAPS.light;
+    basemapLayerRef.current = L.tileLayer(initialBasemap.url, {
+      attribution: initialBasemap.attribution,
       maxZoom: 19,
     }).addTo(map);
 
@@ -153,8 +182,29 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
       mapRef.current = null;
       infraLayerRef.current = null;
       buildingLayerRef.current = null;
+      basemapLayerRef.current = null;
       setMapReady(false);
     };
+  }, []);
+
+  // Change basemap
+  const changeBasemap = useCallback((basemapKey: string) => {
+    const map = mapRef.current;
+    if (!map || !basemapLayerRef.current) return;
+
+    const basemap = BASEMAPS[basemapKey as keyof typeof BASEMAPS];
+    if (!basemap) return;
+
+    map.removeLayer(basemapLayerRef.current);
+    basemapLayerRef.current = L.tileLayer(basemap.url, {
+      attribution: basemap.attribution,
+      maxZoom: 19,
+    }).addTo(map);
+    
+    // Move basemap to back
+    basemapLayerRef.current.bringToBack();
+    
+    setActiveBasemap(basemapKey);
   }, []);
 
   const loadInfrastructure = useCallback(() => {
@@ -192,25 +242,13 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
                 lineCap: 'round',
                 lineJoin: 'round'
               });
-              line.bindPopup(createInfraPopup(props), { 
-                maxWidth: 320, 
-                className: 'custom-popup',
-                closeButton: true 
-              });
-              line.on('mouseover', function() { 
-                this.setStyle({ weight: 6, opacity: 1 }); 
-              });
-              line.on('mouseout', function() { 
-                this.setStyle({ weight: 4, opacity: 0.9 }); 
-              });
+              line.bindPopup(createInfraPopup(props), { maxWidth: 320 });
+              line.on('mouseover', function() { this.setStyle({ weight: 6, opacity: 1 }); });
+              line.on('mouseout', function() { this.setStyle({ weight: 4, opacity: 0.9 }); });
               line.addTo(infraLayer);
             } else if (geom.type === 'Point' && geom.coordinates.length >= 2) {
               const marker = L.circleMarker(L.latLng(geom.coordinates[1], geom.coordinates[0]), {
-                radius: 8, 
-                color: '#fff',
-                weight: 2,
-                fillColor: color, 
-                fillOpacity: 0.9
+                radius: 8, color: '#fff', weight: 2, fillColor: color, fillOpacity: 0.9
               });
               marker.bindPopup(createInfraPopup(props), { maxWidth: 320 });
               marker.addTo(infraLayer);
@@ -229,7 +267,7 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
 
     if (!filters.showBuildings) return;
 
-    fetch(`/api/geojson/buildings?limit=500`)
+    fetch(`/api/geojson/buildings?limit=2000`)
       .then(res => res.json())
       .then((data: GeoJSON.FeatureCollection) => {
         data.features.forEach(feature => {
@@ -245,26 +283,15 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
             if (geom.type === 'Polygon' && geom.coordinates[0]?.length >= 4) {
               const latLngs = geom.coordinates[0].map((c: number[]) => L.latLng(c[1], c[0]));
               const poly = L.polygon(latLngs, { 
-                color: '#fff', 
-                weight: 2, 
-                fillColor, 
-                fillOpacity: 0.7 
+                color: '#fff', weight: 2, fillColor, fillOpacity: 0.7 
               });
               poly.bindPopup(createBuildingPopup(props), { maxWidth: 320 });
-              poly.on('mouseover', function() { 
-                this.setStyle({ fillOpacity: 0.9, weight: 3 }); 
-              });
-              poly.on('mouseout', function() { 
-                this.setStyle({ fillOpacity: 0.7, weight: 2 }); 
-              });
+              poly.on('mouseover', function() { this.setStyle({ fillOpacity: 0.9, weight: 3 }); });
+              poly.on('mouseout', function() { this.setStyle({ fillOpacity: 0.7, weight: 2 }); });
               poly.addTo(buildingLayer);
             } else if (geom.type === 'Point' && geom.coordinates.length >= 2) {
               const marker = L.circleMarker(L.latLng(geom.coordinates[1], geom.coordinates[0]), {
-                radius: 10, 
-                color: '#fff', 
-                weight: 2,
-                fillColor, 
-                fillOpacity: 0.8
+                radius: 10, color: '#fff', weight: 2, fillColor, fillOpacity: 0.8
               });
               marker.bindPopup(createBuildingPopup(props), { maxWidth: 320 });
               marker.addTo(buildingLayer);
@@ -281,5 +308,28 @@ export default function Map({ filters, onFeatureClick }: MapProps) {
     loadBuildings();
   }, [mapReady, loadInfrastructure, loadBuildings]);
 
-  return <div ref={containerRef} className="w-full h-full" style={{ minHeight: '400px' }} />;
+  return (
+    <div className="relative w-full h-full" style={{ minHeight: '400px' }}>
+      <div ref={containerRef} className="w-full h-full" />
+      
+      {/* Basemap Switcher */}
+      <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex">
+          {Object.entries(BASEMAPS).map(([key, basemap]) => (
+            <button
+              key={key}
+              onClick={() => changeBasemap(key)}
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                activeBasemap === key
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {basemap.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
