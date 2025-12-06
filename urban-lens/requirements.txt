@@ -1,0 +1,29 @@
+# Urban Infrastructure Lens - Dependencies
+# pip install -r requirements.txt
+
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+
+# Database
+sqlalchemy==2.0.25
+geoalchemy2==0.14.3
+psycopg2-binary==2.9.9
+
+# Geospatial
+shapely==2.0.2
+geojson==3.1.0
+pyproj==3.6.1
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+requests==2.31.0
+
+# Utilities
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# STAC
+pystac==1.9.0
