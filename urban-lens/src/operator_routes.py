@@ -21,15 +21,15 @@ OPERATORS = {
         "full_name": "Dövlət Şəhərsalma və Arxitektura Komitəsi",
         "category": "building",
         "color": "#8b5cf6",
-        "password": "shahersalma2024"
+        "password": "shahersalma2025"
     },
     "sutechizati": {
         "id": "sutechizati",
-        "name": "Su Təchizatı",
+        "name": "İri şəhərlərin birləşmiş su təchizatı",
         "full_name": "İri şəhərlərin birləşmiş su təchizatı",
         "category": "water",
         "color": "#06b6d4",
-        "password": "sutechizati2024"
+        "password": "sutechizati2025"
     },
     "aztelekom": {
         "id": "aztelekom",
@@ -37,7 +37,7 @@ OPERATORS = {
         "full_name": "Aztelekom MMC",
         "category": "telecom",
         "color": "#6366f1",
-        "password": "aztelekom2024"
+        "password": "aztelekom2025"
     },
 }
 

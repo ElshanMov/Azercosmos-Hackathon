@@ -253,7 +253,7 @@ export default function Sidebar({ filters, setFilters, operators, stats, isLoadi
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="text-xs text-gray-500 text-center">
-          <p>National Space Hackathon 2024</p>
+          <p>National Space Hackathon 2025</p>
           <p className="mt-1">Azercosmos</p>
         </div>
       </div>

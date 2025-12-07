@@ -208,9 +208,9 @@ export default function OperatorPortal({ onBack }: OperatorPortalProps) {
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-500 font-medium mb-2">Demo giriş məlumatları:</p>
               <div className="space-y-1 text-xs text-gray-600">
-                <p>🏛️ Şəhərsalma: <code className="bg-gray-200 px-1 rounded">shahersalma2024</code></p>
-                <p>💧 Su Təchizatı: <code className="bg-gray-200 px-1 rounded">sutechizati2024</code></p>
-                <p>📡 Aztelekom: <code className="bg-gray-200 px-1 rounded">aztelekom2024</code></p>
+                <p>🏛️ Şəhərsalma: <code className="bg-gray-200 px-1 rounded">shahersalma2025</code></p>
+                <p>💧 Su Təchizatı: <code className="bg-gray-200 px-1 rounded">sutechizati2025</code></p>
+                <p>📡 Aztelekom: <code className="bg-gray-200 px-1 rounded">aztelekom2025</code></p>
               </div>
             </div>
           </div>

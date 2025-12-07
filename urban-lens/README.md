@@ -1,6 +1,6 @@
 # 🏙️ Urban Infrastructure Lens
 
-**National Space Hackathon 2024 - Urban Planning & Smart Cities Challenge**
+**National Space Hackathon 2025 - Urban Planning & Smart Cities Challenge**
 
 Şəhər infrastrukturunu (kabellər, su boruları, qaz xətləri, binalar) vahid xəritədə göstərən, STAC API ilə işləyən interaktiv platforma.
 
@@ -168,7 +168,7 @@ Frontend: http://localhost:3000
 
 ## 👥 Komanda
 
-**Team Name** - National Space Hackathon 2024
+**GeoMerge** - National Space Hackathon 2025
 
 ## 📄 License
 
@@ -176,4 +176,4 @@ MIT License - Hackathon Project
 
 ---
 
-**Built with ❤️ for National Space Hackathon 2024 by Azercosmos**
+**Built with ❤️ for National Space Hackathon 2025 by Azercosmos**
