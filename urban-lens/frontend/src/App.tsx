@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Map from './components/Map';
 import Sidebar from './components/Sidebar';
 import FeaturePanel from './components/FeaturePanel';
+import OperatorPortal from './components/OperatorPortal';
 import { useStats, useOperators } from './hooks/useApi';
 import type { FilterState } from './types';
 
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function AppContent() {
+function MapView() {
   const [filters, setFilters] = useState<FilterState>({
     operators: [],
     categories: [],
@@ -57,23 +58,23 @@ function AppContent() {
         />
 
         {/* Legend */}
-        <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-3 z-[500]">
+        <div className="absolute bottom-8 left-4 bg-white rounded-lg shadow-lg p-3 z-[500]">
           <h4 className="text-xs font-semibold text-gray-600 mb-2">Əfsanə</h4>
           <div className="space-y-1.5 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-red-500 rounded"></div>
+              <div className="w-4 h-1 bg-indigo-500 rounded"></div>
               <span>Telekommunikasiya</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-teal-500 rounded"></div>
+              <div className="w-4 h-1 bg-cyan-500 rounded"></div>
               <span>Su təchizatı</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-yellow-500 rounded"></div>
+              <div className="w-4 h-1 bg-amber-500 rounded"></div>
               <span>Qaz</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-orange-500 rounded"></div>
+              <div className="w-4 h-1 bg-red-500 rounded"></div>
               <span>Elektrik</span>
             </div>
             <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
@@ -92,6 +93,31 @@ function AppContent() {
       </div>
     </div>
   );
+}
+
+function AppContent() {
+  // Simple routing based on hash
+  const [currentPage, setCurrentPage] = useState<'map' | 'operator'>(() => {
+    return window.location.hash === '#operator' ? 'operator' : 'map';
+  });
+
+  // Listen for hash changes
+  useState(() => {
+    const handleHashChange = () => {
+      setCurrentPage(window.location.hash === '#operator' ? 'operator' : 'map');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  });
+
+  if (currentPage === 'operator') {
+    return <OperatorPortal onBack={() => {
+      window.location.hash = '';
+      setCurrentPage('map');
+    }} />;
+  }
+
+  return <MapView />;
 }
 
 export default function App() {
